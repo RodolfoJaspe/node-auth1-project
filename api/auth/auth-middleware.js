@@ -6,8 +6,12 @@
     "message": "You shall not pass!"
   }
 */
-function restricted() {
-
+function restricted(err,req,res,next) {
+    if(req.session.user){
+        next()
+    }else{
+        res.status(401).json({message:"Bad credentials!"})
+    }
 }
 
 /*
@@ -47,3 +51,6 @@ function checkPasswordLength() {
 }
 
 // Don't forget to add these to the `exports` object so they can be required in other modules
+
+
+module.exports = {restricted}
