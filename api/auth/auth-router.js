@@ -4,8 +4,9 @@
 const router = require("express").Router()
 const bcrypt = require("bcryptjs")
 const Users = require("../users/users-model")
+const { checkUsernameFree, checkUsernameExists } = require("./auth-middleware")
 
-router.post("/register", async (req,res,next) => {
+router.post("/register", checkUsernameFree ,async (req,res,next) => {
     try{
         const {username,password} = req.body
         const hash = bcrypt.hashSync(password,8)
@@ -18,16 +19,16 @@ router.post("/register", async (req,res,next) => {
     }
     
 })
-router.post("/login", async (req,res,next) => {
+router.post("/login", checkUsernameExists,async (req,res,next) => {
     try{
         const {username,password} = req.body
         const existing = await Users.findBy({username})
         if(existing && bcrypt.compareSync(password,existing.password)){
-            console.log(req.session)
+            // console.log(existing)
             req.session.user = existing
-            res.status(200).json(existing)
+            res.status(200).json({message:`welcome ${existing.username}`})
         }else{
-            res.status(500).json({message:err.message})
+            res.status(404).json({message:"invalid Credentials!"})
         }
 
    }catch(err){
@@ -35,7 +36,17 @@ router.post("/login", async (req,res,next) => {
    } 
 })
 router.get("/logout", (req,res,next) => {
-    res.status(200).json("logout wired")
+    if(req.session.user){
+        req.session.destroy(err => {
+            if(err){
+                res.json({message:"there was an error on logout"})
+            }else{
+                res.json({message:"later!"})
+            }
+        })
+    }else{
+        res.json({message:"You are not logged in!"})
+    }
 })
 
 module.exports = router

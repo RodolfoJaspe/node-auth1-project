@@ -32,11 +32,18 @@ server.use(session({
     cookie:{
         maxAge: 1000 * 60 * 60,
         secure: false,
-        httpOnly: false,
+        httpOnly: true,
     },
     rolling: true, //push back the exp date of cookie
     resave: false,
     saveUninitialized:false, //if false, sessions are not stored by default
+    store: new knexSessionStore({
+        knex:require("../data/db-config"),
+        tablename:"sessions",
+        sidfieldname:"sid",
+        createTable:true,
+        clearInterval:1000 * 60 * 60
+      })
 
 
 }))
