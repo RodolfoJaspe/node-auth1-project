@@ -4,9 +4,9 @@
 const router = require("express").Router()
 const bcrypt = require("bcryptjs")
 const Users = require("../users/users-model")
-const { checkUsernameFree, checkUsernameExists } = require("./auth-middleware")
+const { checkUsernameFree, checkUsernameExists, checkPasswordLength } = require("./auth-middleware")
 
-router.post("/register", checkUsernameFree ,async (req,res,next) => {
+router.post("/register", checkUsernameFree,checkPasswordLength, async (req,res,next) => {
     try{
         const {username,password} = req.body
         const hash = bcrypt.hashSync(password,8)
@@ -41,11 +41,11 @@ router.get("/logout", (req,res,next) => {
             if(err){
                 res.json({message:"there was an error on logout"})
             }else{
-                res.json({message:"later!"})
+                res.json({message:"logged out"})
             }
         })
     }else{
-        res.json({message:"You are not logged in!"})
+        res.json({message:"no session"})
     }
 })
 
